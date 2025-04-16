@@ -14,6 +14,7 @@ using Volo.Abp.SettingManagement.EntityFrameworkCore;
 using Volo.Abp.OpenIddict.EntityFrameworkCore;
 using Volo.Abp.TenantManagement;
 using Volo.Abp.TenantManagement.EntityFrameworkCore;
+using TaskTimeTracker.Entities;
 
 namespace TaskTimeTracker.EntityFrameworkCore;
 
@@ -26,6 +27,7 @@ public class TaskTimeTrackerDbContext :
     IIdentityDbContext
 {
     /* Add DbSet properties for your Aggregate Roots / Entities here. */
+    public DbSet<ApplicationWorkflowInstance> ApplicationWorkflowInstances { get; set; }
 
 
     #region Entities from the modules
@@ -78,7 +80,7 @@ public class TaskTimeTrackerDbContext :
         builder.ConfigureOpenIddict();
         builder.ConfigureTenantManagement();
         builder.ConfigureBlobStoring();
-        
+
         /* Configure your own tables/entities inside here */
 
         //builder.Entity<YourEntity>(b =>
@@ -87,5 +89,44 @@ public class TaskTimeTrackerDbContext :
         //    b.ConfigureByConvention(); //auto configure for the base class props
         //    //...
         //});
+
+        builder.Entity<ApplicationWorkflowInstance>(entity =>
+        {
+            entity.ToTable("ApplicationWorkflowInstances");
+
+            entity.HasKey(e => e.Id);
+
+            entity.Property(e => e.InstanceId).HasColumnType("uniqueidentifier"); // Changed to uniqueidentifier
+            entity.Property(e => e.InitialData).HasColumnType("text").IsRequired();
+            entity.Property(e => e.IntermediateData).HasColumnType("text");
+            entity.Property(e => e.Remarks).HasColumnType("text");
+            entity.Property(e => e.RequestedBy).HasMaxLength(200);
+
+            entity.HasOne(e => e.OperationWorkflowInstance)
+                  .WithMany()
+                  .HasForeignKey(e => e.OperationWorkflowInstanceId)
+                  .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(e => e.OperationWorkflowConfiguration)
+                  .WithMany()
+                  .HasForeignKey(e => e.OperationWorkflowConfigurationId)
+                  .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(e => e.Workflow)
+                  .WithMany()
+                  .HasForeignKey(e => e.InstanceId)
+                  .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(e => e.WorkflowStage)
+                  .WithMany()
+                  .HasForeignKey(e => e.WorkflowStageId)
+                  .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(e => e.WorkflowSubStage)
+                  .WithMany()
+                  .HasForeignKey(e => e.WorkflowSubStageId)
+                  .OnDelete(DeleteBehavior.Restrict);
+        });
+
     }
 }
