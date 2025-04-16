@@ -28,6 +28,7 @@ public class TaskTimeTrackerDbContext :
 {
     /* Add DbSet properties for your Aggregate Roots / Entities here. */
     public DbSet<ApplicationWorkflowInstance> ApplicationWorkflowInstances { get; set; }
+    public DbSet<Project> Projects { get; set; }
 
 
     #region Entities from the modules
@@ -126,6 +127,17 @@ public class TaskTimeTrackerDbContext :
                   .WithMany()
                   .HasForeignKey(e => e.WorkflowSubStageId)
                   .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        builder.Entity<Project>(entity =>
+        {
+            entity.ToTable("Projects");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Name).HasMaxLength(200).IsRequired();
+            entity.Property(e => e.Description).HasColumnType("text");
+            entity.Property(e => e.StartDate).HasColumnType("timestamp without time zone");
+            entity.Property(e => e.EndDate).HasColumnType("timestamp without time zone");
+            entity.Property(e => e.Status).HasMaxLength(50);
         });
 
     }
