@@ -1,0 +1,105 @@
+{
+  "template": "app",
+  "imports": {
+    "Volo.Abp.LeptonXLiteTheme": {
+      "version": "4.1.0",
+      "isInstalled": true
+    },
+    "Volo.Abp.Account": {
+      "version": "9.1.0",
+      "isInstalled": true
+    },
+    "Volo.Abp.OpenIddict": {
+      "version": "9.1.0",
+      "isInstalled": true
+    },
+    "Volo.Abp.Identity": {
+      "version": "9.1.0",
+      "isInstalled": true
+    },
+    "Volo.Abp.TenantManagement": {
+      "version": "9.1.0",
+      "isInstalled": true
+    },
+    "Volo.Abp.SettingManagement": {
+      "version": "9.1.0",
+      "isInstalled": true
+    },
+    "Volo.Abp.PermissionManagement": {
+      "version": "9.1.0",
+      "isInstalled": true
+    },
+    "Volo.Abp.FeatureManagement": {
+      "version": "9.1.0",
+      "isInstalled": true
+    }
+  },
+  "folders": {
+    "items": {
+      "src": {},
+      "test": {}
+    }
+  },
+  "packages": {
+    "TaskTimeTracker.Application": {
+      "path": "src/TaskTimeTracker.Application/TaskTimeTracker.Application.abppkg",
+      "folder": "src"
+    },
+    "TaskTimeTracker.Application.Tests": {
+      "path": "test/TaskTimeTracker.Application.Tests/TaskTimeTracker.Application.Tests.abppkg",
+      "folder": "test"
+    },
+    "TaskTimeTracker.Domain.Shared": {
+      "path": "src/TaskTimeTracker.Domain.Shared/TaskTimeTracker.Domain.Shared.abppkg",
+      "folder": "src"
+    },
+    "TaskTimeTracker.Application.Contracts": {
+      "path": "src/TaskTimeTracker.Application.Contracts/TaskTimeTracker.Application.Contracts.abppkg",
+      "folder": "src"
+    },
+    "TaskTimeTracker.HttpApi": {
+      "path": "src/TaskTimeTracker.HttpApi/TaskTimeTracker.HttpApi.abppkg",
+      "folder": "src"
+    },
+    "TaskTimeTracker.HttpApi.Client": {
+      "path": "src/TaskTimeTracker.HttpApi.Client/TaskTimeTracker.HttpApi.Client.abppkg",
+      "folder": "src"
+    },
+    "TaskTimeTracker.Web": {
+      "path": "src/TaskTimeTracker.Web/TaskTimeTracker.Web.abppkg",
+      "folder": "src"
+    },
+    "TaskTimeTracker.Web.Tests": {
+      "path": "test/TaskTimeTracker.Web.Tests/TaskTimeTracker.Web.Tests.abppkg",
+      "folder": "test"
+    },
+    "TaskTimeTracker.EntityFrameworkCore.Tests": {
+      "path": "test/TaskTimeTracker.EntityFrameworkCore.Tests/TaskTimeTracker.EntityFrameworkCore.Tests.abppkg",
+      "folder": "test"
+    },
+    "TaskTimeTracker.EntityFrameworkCore": {
+      "path": "src/TaskTimeTracker.EntityFrameworkCore/TaskTimeTracker.EntityFrameworkCore.abppkg",
+      "folder": "src"
+    },
+    "TaskTimeTracker.TestBase": {
+      "path": "test/TaskTimeTracker.TestBase/TaskTimeTracker.TestBase.abppkg",
+      "folder": "test"
+    },
+    "TaskTimeTracker.Domain.Tests": {
+      "path": "test/TaskTimeTracker.Domain.Tests/TaskTimeTracker.Domain.Tests.abppkg",
+      "folder": "test"
+    },
+    "TaskTimeTracker.HttpApi.Client.ConsoleTestApp": {
+      "path": "test/TaskTimeTracker.HttpApi.Client.ConsoleTestApp/TaskTimeTracker.HttpApi.Client.ConsoleTestApp.abppkg",
+      "folder": "test"
+    },
+    "TaskTimeTracker.DbMigrator": {
+      "path": "src/TaskTimeTracker.DbMigrator/TaskTimeTracker.DbMigrator.abppkg",
+      "folder": "src"
+    },
+    "TaskTimeTracker.Domain": {
+      "path": "src/TaskTimeTracker.Domain/TaskTimeTracker.Domain.abppkg",
+      "folder": "src"
+    }
+  }
+}
