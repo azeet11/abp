@@ -27,8 +27,9 @@ public class TaskTimeTrackerDbContext :
     IIdentityDbContext
 {
     /* Add DbSet properties for your Aggregate Roots / Entities here. */
-    public DbSet<ApplicationWorkflowInstance> ApplicationWorkflowInstances { get; set; }
     public DbSet<Project> Projects { get; set; }
+    public DbSet<Tasks> Tasks { get; set; }
+    public DbSet<Time> TimeEntries { get; set; } // Added Time entity
 
 
     #region Entities from the modules
@@ -91,53 +92,95 @@ public class TaskTimeTrackerDbContext :
         //    //...
         //});
 
-        builder.Entity<ApplicationWorkflowInstance>(entity =>
-        {
-            entity.ToTable("ApplicationWorkflowInstances");
 
-            entity.HasKey(e => e.Id);
-
-            entity.Property(e => e.InstanceId).HasColumnType("uniqueidentifier"); // Changed to uniqueidentifier
-            entity.Property(e => e.InitialData).HasColumnType("text").IsRequired();
-            entity.Property(e => e.IntermediateData).HasColumnType("text");
-            entity.Property(e => e.Remarks).HasColumnType("text");
-            entity.Property(e => e.RequestedBy).HasMaxLength(200);
-
-            entity.HasOne(e => e.OperationWorkflowInstance)
-                  .WithMany()
-                  .HasForeignKey(e => e.OperationWorkflowInstanceId)
-                  .OnDelete(DeleteBehavior.Restrict);
-
-            entity.HasOne(e => e.OperationWorkflowConfiguration)
-                  .WithMany()
-                  .HasForeignKey(e => e.OperationWorkflowConfigurationId)
-                  .OnDelete(DeleteBehavior.Restrict);
-
-            entity.HasOne(e => e.Workflow)
-                  .WithMany()
-                  .HasForeignKey(e => e.InstanceId)
-                  .OnDelete(DeleteBehavior.Restrict);
-
-            entity.HasOne(e => e.WorkflowStage)
-                  .WithMany()
-                  .HasForeignKey(e => e.WorkflowStageId)
-                  .OnDelete(DeleteBehavior.Restrict);
-
-            entity.HasOne(e => e.WorkflowSubStage)
-                  .WithMany()
-                  .HasForeignKey(e => e.WorkflowSubStageId)
-                  .OnDelete(DeleteBehavior.Restrict);
-        });
-
+        // Configure Project entity
         builder.Entity<Project>(entity =>
         {
-            entity.ToTable("Projects");
-            entity.HasKey(e => e.Id);
-            entity.Property(e => e.Name).HasMaxLength(200).IsRequired();
-            entity.Property(e => e.Description).HasColumnType("text");
-            entity.Property(e => e.StartDate).HasColumnType("timestamp without time zone");
-            entity.Property(e => e.EndDate).HasColumnType("timestamp without time zone");
-            entity.Property(e => e.Status).HasMaxLength(50);
+            entity.ToTable("Projects"); // Table name
+            entity.HasKey(p => p.Id); // Primary key
+
+            entity.Property(p => p.Name)
+                  .IsRequired()
+                  .HasMaxLength(256); // Name column configuration
+
+            entity.Property(p => p.Description)
+                  .HasColumnType("text"); // Description column configuration
+
+            entity.Property(p => p.StartDate)
+                  .HasColumnType("timestamp without time zone"); // StartDate column configuration
+
+            entity.Property(p => p.EndDate)
+                  .HasColumnType("timestamp without time zone"); // EndDate column configuration
+
+            entity.Property(p => p.Status)
+                  .HasMaxLength(50); // Status column configuration
+
+            entity.HasOne(p => p.User)
+                  .WithMany()
+                  .HasForeignKey(p => p.UserId)
+                  .OnDelete(DeleteBehavior.Restrict); // Foreign key to User
+        });
+
+        // Configure Tasks entity
+        builder.Entity<Tasks>(entity =>
+        {
+            entity.ToTable("Tasks"); // Table name
+            entity.HasKey(t => t.Id); // Primary key
+
+            entity.Property(t => t.Title)
+                  .IsRequired()
+                  .HasMaxLength(256); // Title column configuration
+
+            entity.Property(t => t.Description)
+                  .HasColumnType("text"); // Description column configuration
+
+            entity.Property(t => t.DueDate)
+                  .HasColumnType("timestamp without time zone"); // DueDate column configuration
+
+            entity.Property(t => t.Status)
+                  .HasConversion<string>() // Store enum as string
+                  .IsRequired();
+
+            entity.Property(t => t.Priority)
+                  .HasConversion<string>() // Store enum as string
+                  .IsRequired();
+
+            entity.HasOne(t => t.Project)
+                  .WithMany()
+                  .HasForeignKey(t => t.ProjectId)
+                  .OnDelete(DeleteBehavior.Restrict); // Foreign key to Project
+
+            entity.HasOne(t => t.User)
+                  .WithMany()
+                  .HasForeignKey(t => t.UserId)
+                  .OnDelete(DeleteBehavior.Restrict); // Foreign key to User
+        });
+
+        // Configure Time entity
+        builder.Entity<Time>(entity =>
+        {
+            entity.ToTable("TimeEntries"); // Table name
+            entity.HasKey(t => t.Id); // Primary key
+
+            entity.Property(t => t.Date)
+                  .HasColumnType("timestamp without time zone")
+                  .IsRequired(); // Date column configuration
+
+            entity.Property(t => t.Hours)
+                  .IsRequired(); // Hours column configuration
+
+            entity.Property(t => t.Notes)
+                  .HasColumnType("text"); // Notes column configuration
+
+            entity.HasOne(t => t.Tasks)
+                  .WithMany()
+                  .HasForeignKey(t => t.TaskId)
+                  .OnDelete(DeleteBehavior.Restrict); // Foreign key to Tasks
+
+            entity.HasOne(t => t.User)
+                  .WithMany()
+                  .HasForeignKey(t => t.UserId)
+                  .OnDelete(DeleteBehavior.Restrict); // Foreign key to User
         });
 
     }

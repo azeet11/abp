@@ -24,87 +24,6 @@ namespace TaskTimeTracker.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("TaskTimeTracker.Entities.ApplicationWorkflowInstance", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("InitialData")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<Guid?>("InstanceId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("IntermediateData")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<Guid>("OperationWorkflowConfigurationId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("OperationWorkflowInstanceId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("Remarks")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("RequestedBy")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)");
-
-                    b.Property<Guid?>("TenantId")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime?>("WorkflowStageDate")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<Guid>("WorkflowStageId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid?>("WorkflowSubStageId")
-                        .HasColumnType("uuid");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("InstanceId");
-
-                    b.HasIndex("OperationWorkflowConfigurationId");
-
-                    b.HasIndex("OperationWorkflowInstanceId");
-
-                    b.HasIndex("WorkflowStageId");
-
-                    b.HasIndex("WorkflowSubStageId");
-
-                    b.ToTable("ApplicationWorkflowInstances", (string)null);
-                });
-
-            modelBuilder.Entity("TaskTimeTracker.Entities.OperationWorkflowConfiguration", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("OperationWorkflowConfiguration");
-                });
-
-            modelBuilder.Entity("TaskTimeTracker.Entities.OperationWorkflowInstance", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("OperationWorkflowInstance");
-                });
-
             modelBuilder.Entity("TaskTimeTracker.Entities.Project", b =>
                 {
                     b.Property<Guid>("Id")
@@ -147,8 +66,8 @@ namespace TaskTimeTracker.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)");
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
 
                     b.Property<DateTime?>("StartDate")
                         .HasColumnType("timestamp without time zone");
@@ -168,37 +87,133 @@ namespace TaskTimeTracker.Migrations
                     b.ToTable("Projects", (string)null);
                 });
 
-            modelBuilder.Entity("TaskTimeTracker.Entities.Workflow", b =>
+            modelBuilder.Entity("TaskTimeTracker.Entities.Tasks", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)")
+                        .HasColumnName("ConcurrencyStamp");
+
+                    b.Property<DateTime>("CreationTime")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("CreationTime");
+
+                    b.Property<Guid?>("CreatorId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("CreatorId");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("DueDate")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("ExtraProperties")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("ExtraProperties");
+
+                    b.Property<DateTime?>("LastModificationTime")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("LastModificationTime");
+
+                    b.Property<Guid?>("LastModifierId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("LastModifierId");
+
+                    b.Property<string>("Priority")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("ProjectId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<Guid>("UserId")
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Workflow");
+                    b.HasIndex("ProjectId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Tasks", (string)null);
                 });
 
-            modelBuilder.Entity("TaskTimeTracker.Entities.WorkflowStage", b =>
+            modelBuilder.Entity("TaskTimeTracker.Entities.Time", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)")
+                        .HasColumnName("ConcurrencyStamp");
+
+                    b.Property<DateTime>("CreationTime")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("CreationTime");
+
+                    b.Property<Guid?>("CreatorId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("CreatorId");
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("ExtraProperties")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("ExtraProperties");
+
+                    b.Property<double>("Hours")
+                        .HasColumnType("double precision");
+
+                    b.Property<DateTime?>("LastModificationTime")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("LastModificationTime");
+
+                    b.Property<Guid?>("LastModifierId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("LastModifierId");
+
+                    b.Property<string>("Notes")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("TaskId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("TasksId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("UserId")
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
-                    b.ToTable("WorkflowStage");
-                });
+                    b.HasIndex("TaskId");
 
-            modelBuilder.Entity("TaskTimeTracker.Entities.WorkflowSubStage", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
+                    b.HasIndex("UserId");
 
-                    b.HasKey("Id");
-
-                    b.ToTable("WorkflowSubStage");
+                    b.ToTable("TimeEntries", (string)null);
                 });
 
             modelBuilder.Entity("Volo.Abp.AuditLogging.AuditLog", b =>
@@ -2022,54 +2037,51 @@ namespace TaskTimeTracker.Migrations
                     b.ToTable("AbpTenantConnectionStrings", (string)null);
                 });
 
-            modelBuilder.Entity("TaskTimeTracker.Entities.ApplicationWorkflowInstance", b =>
-                {
-                    b.HasOne("TaskTimeTracker.Entities.Workflow", "Workflow")
-                        .WithMany()
-                        .HasForeignKey("InstanceId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("TaskTimeTracker.Entities.OperationWorkflowConfiguration", "OperationWorkflowConfiguration")
-                        .WithMany()
-                        .HasForeignKey("OperationWorkflowConfigurationId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("TaskTimeTracker.Entities.OperationWorkflowInstance", "OperationWorkflowInstance")
-                        .WithMany()
-                        .HasForeignKey("OperationWorkflowInstanceId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("TaskTimeTracker.Entities.WorkflowStage", "WorkflowStage")
-                        .WithMany()
-                        .HasForeignKey("WorkflowStageId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("TaskTimeTracker.Entities.WorkflowSubStage", "WorkflowSubStage")
-                        .WithMany()
-                        .HasForeignKey("WorkflowSubStageId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.Navigation("OperationWorkflowConfiguration");
-
-                    b.Navigation("OperationWorkflowInstance");
-
-                    b.Navigation("Workflow");
-
-                    b.Navigation("WorkflowStage");
-
-                    b.Navigation("WorkflowSubStage");
-                });
-
             modelBuilder.Entity("TaskTimeTracker.Entities.Project", b =>
                 {
                     b.HasOne("Volo.Abp.Identity.IdentityUser", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("TaskTimeTracker.Entities.Tasks", b =>
+                {
+                    b.HasOne("TaskTimeTracker.Entities.Project", "Project")
+                        .WithMany()
+                        .HasForeignKey("ProjectId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Volo.Abp.Identity.IdentityUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Project");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("TaskTimeTracker.Entities.Time", b =>
+                {
+                    b.HasOne("TaskTimeTracker.Entities.Tasks", "Tasks")
+                        .WithMany()
+                        .HasForeignKey("TaskId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Volo.Abp.Identity.IdentityUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Tasks");
 
                     b.Navigation("User");
                 });
