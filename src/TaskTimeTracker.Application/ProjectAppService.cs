@@ -11,9 +11,12 @@ using Volo.Abp.Guids;
 using System.Linq;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
+using TaskTimeTracker.Permissions;
 
 namespace TaskTimeTracker;
 
+[Authorize(TaskTimeTrackerPermissions.Projects.Default)]
 public class ProjectAppService : ApplicationService, ITransientDependency
 {
     private readonly IRepository<Project, Guid> _projectRepository;
@@ -25,6 +28,7 @@ public class ProjectAppService : ApplicationService, ITransientDependency
         _guidGenerator = guidGenerator;
     }
 
+    [Authorize(TaskTimeTrackerPermissions.Projects.Create)]
     [HttpPost("api/projects")]
     public async Task<ProjectDto> CreateAsync(ProjectDto project)
     {
@@ -61,6 +65,7 @@ public class ProjectAppService : ApplicationService, ITransientDependency
         }
     }
 
+    [Authorize(TaskTimeTrackerPermissions.Projects.Default)]
     [HttpGet("api/projects")]
     public async Task<List<ProjectDto>> GetListAsync()
     {
@@ -95,6 +100,7 @@ public class ProjectAppService : ApplicationService, ITransientDependency
         }
     }
 
+    [Authorize(TaskTimeTrackerPermissions.Projects.Default)]
     [HttpGet("api/projects/{id}")]
     public async Task<ProjectDto> GetAsync(Guid id)
     {
@@ -122,6 +128,7 @@ public class ProjectAppService : ApplicationService, ITransientDependency
         }
     }
 
+    [Authorize(TaskTimeTrackerPermissions.Projects.Update)]
     [HttpPut("api/projects/{id}")]
     public async Task<ProjectDto> UpdateAsync(Guid id, ProjectDto project)
     {
@@ -156,6 +163,7 @@ public class ProjectAppService : ApplicationService, ITransientDependency
         }
     }
 
+    [Authorize(TaskTimeTrackerPermissions.Projects.Delete)]
     [HttpDelete("api/projects/{id}")]
     public async Task DeleteAsync(Guid id)
     {
