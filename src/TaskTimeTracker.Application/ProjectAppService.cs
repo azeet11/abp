@@ -44,6 +44,9 @@ public class ProjectAppService : ApplicationService, ITransientDependency
                     project.EndDate,
                     project.Status
                 );
+
+            await _projectRepository.InsertAsync(newProject);
+
             return new ProjectDto
             {
                 Id = newProject.Id,
