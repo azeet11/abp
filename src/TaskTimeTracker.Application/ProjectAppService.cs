@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
 using TaskTimeTracker.Permissions;
+using Microsoft.Extensions.Logging;
 
 namespace TaskTimeTracker;
 
@@ -64,6 +65,8 @@ public class ProjectAppService : ApplicationService, ITransientDependency
         }
         catch (Exception ex)
         {
+            Logger.LogError(ex, "Project could not be created."); // Log the exception
+
             throw new UserFriendlyException("An error occurred while creating the project.");
         }
     }

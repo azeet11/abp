@@ -10,6 +10,7 @@ public class Project : AuditedAggregateRoot<Guid>
 {
     public Project(Guid id, string name, string description, Guid userId, DateTime? startDate, DateTime? endDate, string status) : base(id)
     {
+        Id = id;
         Name = name;
         Description = description;
         UserId = userId;
