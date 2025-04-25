@@ -14,11 +14,12 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
 using TaskTimeTracker.Permissions;
 using Microsoft.Extensions.Logging;
+using TaskTimeTracker.Interfaces;
 
 namespace TaskTimeTracker;
 
 [Authorize(TaskTimeTrackerPermissions.Projects.Default)]
-public class ProjectAppService : ApplicationService, ITransientDependency
+public class ProjectAppService : ApplicationService, ITransientDependency, IProjectAppService
 {
     private readonly IRepository<Project, Guid> _projectRepository;
     private readonly IGuidGenerator _guidGenerator;
@@ -73,26 +74,48 @@ public class ProjectAppService : ApplicationService, ITransientDependency
 
     [Authorize(TaskTimeTrackerPermissions.Projects.Default)]
     [HttpGet("api/projects")]
-    public async Task<List<ProjectDto>> GetListAsync()
+    public async Task<List<ProjectDto>> GetListAsync([FromQuery] PagedAndFilteredResultRequestDto input)
     {
         try
         {
             var projectQueryable = await _projectRepository.GetQueryableAsync();
-            var projects = await projectQueryable.Select(p => new ProjectDto()
-            {
-                Id = p.Id,
-                Name = p.Name,
-                Description = p.Description,
-                UserId = p.UserId,
-                StartDate = p.StartDate,
-                EndDate = p.EndDate,
-                Status = p.Status
-            }).ToListAsync();
 
-            if (projects == null || !projects.Any())
+            // Apply general filter (Name or Description)
+            if (!string.IsNullOrWhiteSpace(input.Filter))
             {
-                throw new UserFriendlyException("No projects found.");
+                projectQueryable = projectQueryable.Where(p =>
+                    p.Name.Contains(input.Filter) ||
+                    p.Description.Contains(input.Filter));
             }
+
+            // Filter by UserId
+            if (input.UserId.HasValue)
+            {
+                projectQueryable = projectQueryable.Where(p => p.UserId == input.UserId.Value);
+            }
+
+            // Filter by Status
+            if (!string.IsNullOrWhiteSpace(input.Status))
+            {
+                projectQueryable = projectQueryable.Where(p => p.Status == input.Status);
+            }
+
+            // Apply pagination
+            var projects = await projectQueryable
+                .OrderBy(p => p.Name) // Optional: Order by Name
+                .Skip(input.SkipCount)
+                .Take(input.MaxResultCount)
+                .Select(p => new ProjectDto
+                {
+                    Id = p.Id,
+                    Name = p.Name,
+                    Description = p.Description,
+                    UserId = p.UserId,
+                    StartDate = p.StartDate,
+                    EndDate = p.EndDate,
+                    Status = p.Status
+                })
+                .ToListAsync();
 
             return projects;
         }
@@ -112,17 +135,22 @@ public class ProjectAppService : ApplicationService, ITransientDependency
     {
         try
         {
-            var project = await _projectRepository.GetAsync(id);
-            return new ProjectDto
+            var project = await (await _projectRepository.GetQueryableAsync()).Where(p => p.Id == id).Select(x => new ProjectDto
             {
-                Id = project.Id,
-                Name = project.Name,
-                Description = project.Description,
-                UserId = project.UserId,
-                StartDate = project.StartDate,
-                EndDate = project.EndDate,
-                Status = project.Status
-            };
+                Id = x.Id,
+                Name = x.Name,
+                Description = x.Description,
+                UserId = x.UserId,
+                StartDate = x.StartDate,
+                EndDate = x.EndDate,
+                Status = x.Status
+            }).FirstOrDefaultAsync();
+
+            if (project == null)
+            {
+                throw new UserFriendlyException("Project not found.");
+            }
+            return project;
         }
         catch (UserFriendlyException)
         {
@@ -175,6 +203,11 @@ public class ProjectAppService : ApplicationService, ITransientDependency
     {
         try
         {
+            var existingProject = await _projectRepository.GetAsync(id);
+            if (existingProject == null)
+            {
+                throw new UserFriendlyException("Project not found.");
+            }
             await _projectRepository.DeleteAsync(id);
         }
         catch (UserFriendlyException)
