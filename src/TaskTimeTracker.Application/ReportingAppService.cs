@@ -24,7 +24,7 @@ public class ReportingAppService : ApplicationService
     }
 
     [Authorize(TaskTimeTrackerPermissions.Reporting.View)]
-    [HttpGet("api/reports")]
+    [HttpGet("api/reports/get-total-hours")]
     public async Task<List<ReportDto>> GetTotalHoursAsync(ReportFilterDto filter)
     {
         var queryable = await _timeRepository.GetQueryableAsync(); // Get IQueryable<Time>
@@ -32,17 +32,17 @@ public class ReportingAppService : ApplicationService
         var query = queryable
             .WhereIf(filter.ProjectId.HasValue, t => t.Tasks.ProjectId == filter.ProjectId)
             .WhereIf(filter.UserId.HasValue, t => t.UserId == filter.UserId)
-            .WhereIf(filter.TaskId.HasValue, t => t.TaskId == filter.TaskId)
+            .WhereIf(filter.TaskId.HasValue, t => t.TasksId == filter.TaskId)
             .WhereIf(filter.StartDate.HasValue, t => t.Date >= filter.StartDate)
             .WhereIf(filter.EndDate.HasValue, t => t.Date <= filter.EndDate);
 
         var result = await query
-            .GroupBy(t => new { t.Tasks.ProjectId, t.UserId, t.TaskId })
+            .GroupBy(t => new { t.Tasks.ProjectId, t.UserId, t.TasksId })
             .Select(g => new ReportDto
             {
                 ProjectId = g.Key.ProjectId,
                 UserId = g.Key.UserId,
-                TaskId = g.Key.TaskId,
+                TaskId = g.Key.TasksId,
                 TotalHours = g.Sum(t => t.Hours)
             })
             .ToListAsync();
