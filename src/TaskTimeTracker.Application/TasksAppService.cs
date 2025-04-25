@@ -41,7 +41,7 @@ public class TasksAppService : ApplicationService, ITransientDependency
                 Description = task.Description,
                 ProjectId = task.ProjectId,
                 UserId = task.UserId,
-                DueDate = (DateTime)task.DueDate,
+                DueDate = task.DueDate,
                 Priority = task.Priority,
                 Status = task.Status
             };
@@ -68,27 +68,55 @@ public class TasksAppService : ApplicationService, ITransientDependency
 
     [Authorize(TaskTimeTrackerPermissions.Tasks.Default)]
     [HttpGet("api/tasks")]
-    public async Task<List<TaskDto>> GetListAsync()
+    public async Task<List<TaskDto>> GetListAsync([FromQuery] PagedAndFilteredResultRequestDto input)
     {
         try
         {
             var taskQueryable = await _taskRepository.GetQueryableAsync();
-            var tasks = await taskQueryable.Select(t => new TaskDto
-            {
-                Id = t.Id,
-                Title = t.Title,
-                Description = t.Description,
-                ProjectId = t.ProjectId,
-                UserId = t.UserId,
-                DueDate = t.DueDate,
-                Priority = t.Priority,
-                Status = t.Status
-            }).ToListAsync();
 
-            if (tasks == null || !tasks.Any())
+            // Apply general filter (Title or Description)
+            if (!string.IsNullOrWhiteSpace(input.Filter))
             {
-                throw new UserFriendlyException("No tasks found.");
+                taskQueryable = taskQueryable.Where(t =>
+                    t.Title.Contains(input.Filter) ||
+                    t.Description.Contains(input.Filter));
             }
+
+            // Filter by ProjectId
+            if (input.ProjectId.HasValue)
+            {
+                taskQueryable = taskQueryable.Where(t => t.ProjectId == input.ProjectId.Value);
+            }
+
+            // Filter by UserId
+            if (input.UserId.HasValue)
+            {
+                taskQueryable = taskQueryable.Where(t => t.UserId == input.UserId.Value);
+            }
+
+            // Filter by Status
+            if (input.TaskStatus.HasValue)
+            {
+                taskQueryable = taskQueryable.Where(t => t.Status == input.TaskStatus.Value);
+            }
+
+            // Apply pagination
+            var tasks = await taskQueryable
+                .OrderBy(t => t.Title) // Optional: Order by Title
+                .Skip(input.SkipCount)
+                .Take(input.MaxResultCount)
+                .Select(t => new TaskDto
+                {
+                    Id = t.Id,
+                    Title = t.Title,
+                    Description = t.Description,
+                    ProjectId = t.ProjectId,
+                    UserId = t.UserId,
+                    DueDate = t.DueDate,
+                    Priority = t.Priority,
+                    Status = t.Status
+                })
+                .ToListAsync();
 
             return tasks;
         }
@@ -108,18 +136,23 @@ public class TasksAppService : ApplicationService, ITransientDependency
     {
         try
         {
-            var task = await _taskRepository.GetAsync(id);
-            return new TaskDto
+            var task = await (await _taskRepository.GetQueryableAsync()).Where(t => t.Id == id).Select(x => new TaskDto
             {
-                Id = task.Id,
-                Title = task.Title,
-                Description = task.Description,
-                ProjectId = task.ProjectId,
-                UserId = task.UserId,
-                DueDate = task.DueDate,
-                Priority = task.Priority, 
-                Status = task.Status 
-            };
+                Id = x.Id,
+                Title = x.Title,
+                Description = x.Description,
+                ProjectId = x.ProjectId,
+                UserId = x.UserId,
+                DueDate = x.DueDate,
+                Priority = x.Priority,
+                Status = x.Status
+            }).FirstOrDefaultAsync();
+
+            if (task == null)
+            {
+                throw new UserFriendlyException("Task not found.");
+            }
+            return task;
         }
         catch (UserFriendlyException)
         {
@@ -142,7 +175,7 @@ public class TasksAppService : ApplicationService, ITransientDependency
             existingTask.Description = task.Description;
             existingTask.ProjectId = task.ProjectId;
             existingTask.UserId = task.UserId;
-            existingTask.DueDate = (DateTime)task.DueDate;
+            existingTask.DueDate = task.DueDate;
             existingTask.Priority = task.Priority; 
             existingTask.Status = task.Status; 
 
@@ -176,6 +209,11 @@ public class TasksAppService : ApplicationService, ITransientDependency
     {
         try
         {
+            var task = await _taskRepository.GetAsync(id);
+            if (task == null)
+            {
+                throw new UserFriendlyException("Task not found.");
+            }
             await _taskRepository.DeleteAsync(id);
         }
         catch (UserFriendlyException)
