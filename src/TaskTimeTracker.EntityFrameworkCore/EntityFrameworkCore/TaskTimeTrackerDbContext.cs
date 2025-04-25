@@ -174,7 +174,7 @@ public class TaskTimeTrackerDbContext :
 
             entity.HasOne(t => t.Tasks)
                   .WithMany()
-                  .HasForeignKey(t => t.TaskId)
+                  .HasForeignKey(t => t.TasksId)
                   .OnDelete(DeleteBehavior.Restrict); // Foreign key to Tasks
 
             entity.HasOne(t => t.User)
