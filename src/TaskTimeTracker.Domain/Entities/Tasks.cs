@@ -18,7 +18,7 @@ public class Tasks : AuditedAggregateRoot<Guid>
 
     public string Description { get; set; }
 
-    public DateTime DueDate { get; set; }
+    public DateTime? DueDate { get; set; }
 
     public TasksStatus Status { get; set; }
 

@@ -17,7 +17,7 @@ public class Time : AuditedAggregateRoot<Guid>
 
     public string Notes { get; set; }
 
-    public Guid TaskId { get; set; }
+    public Guid TasksId { get; set; }
 
     [ForeignKey("TasksId")]
     public virtual Tasks Tasks { get; set; }
